@@ -2,7 +2,7 @@ use crate::{
     constants::{ED25519_SIGNATURE_LENGTH, SECP256K1_SIGNATURE_LENGTH},
     near::types::{ED25519Signature, Secp256K1Signature, Signature},
 };
-use bs58;
+use near_sdk::bs58;
 use std::convert::TryInto;
 
 pub trait SignatureStrExt {

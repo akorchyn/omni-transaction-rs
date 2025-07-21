@@ -1,9 +1,5 @@
 use std::io::{BufRead, Write};
 
-use borsh::{BorshDeserialize, BorshSerialize};
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
-
 use crate::bitcoin::{
     encoding::{Decodable, Encodable},
     types::script_buf::ScriptBuf,
@@ -22,18 +18,8 @@ use super::amount::Amount;
 /// ### Bitcoin Core References
 ///
 /// * [CTxOut definition](https://github.com/bitcoin/bitcoin/blob/345457b542b6a980ccfbc868af0970a6f91d1b82/src/primitives/transaction.h#L148)
-#[derive(
-    Debug,
-    Clone,
-    PartialEq,
-    Eq,
-    Serialize,
-    Deserialize,
-    BorshSerialize,
-    BorshDeserialize,
-    JsonSchema,
-)]
-#[serde(crate = "near_sdk::serde")]
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[near_sdk::near(serializers=[borsh, json])]
 pub struct TxOut {
     /// The value of the output, in satoshis.
     pub value: Amount,

@@ -3,29 +3,14 @@ use std::{
     ops,
 };
 
-use borsh::{BorshDeserialize, BorshSerialize};
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
-
 use crate::bitcoin::encoding::{Decodable, Encodable};
 
 /// An amount.
 ///
 /// The [`Amount`] type can be used to express Bitcoin amounts that support
 /// arithmetic and conversion to various denominations.
-#[derive(
-    Debug,
-    Copy,
-    Clone,
-    PartialEq,
-    Eq,
-    Serialize,
-    Deserialize,
-    BorshSerialize,
-    BorshDeserialize,
-    JsonSchema,
-)]
-#[serde(crate = "near_sdk::serde")]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[near_sdk::near(serializers=[borsh, json])]
 pub struct Amount(u64);
 
 impl Amount {

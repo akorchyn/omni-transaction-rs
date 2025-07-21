@@ -1,13 +1,12 @@
-use borsh::{BorshDeserialize, BorshSerialize};
-use near_sdk::serde::{Deserialize, Deserializer, Serialize};
-use schemars::JsonSchema;
-use serde::Serializer;
-use std::fmt;
+use near_sdk::serde::{self, Deserialize, Deserializer, Serialize, Serializer};
 
-#[derive(Debug, Clone, PartialEq, Eq, BorshSerialize, BorshDeserialize, JsonSchema, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[near_sdk::near(serializers=[borsh])]
+#[serde(crate = "near_sdk::serde")]
 pub struct U64(pub u64);
 
-#[derive(Debug, Clone, PartialEq, Eq, BorshSerialize, BorshDeserialize, JsonSchema)]
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[near_sdk::near(serializers=[borsh])]
 pub struct U128(pub u128);
 
 impl From<u64> for U64 {
@@ -19,6 +18,30 @@ impl From<u64> for U64 {
 impl From<u128> for U128 {
     fn from(value: u128) -> Self {
         Self(value)
+    }
+}
+
+impl near_sdk::schemars::JsonSchema for U64 {
+    fn schema_name() -> String {
+        "U64".to_string()
+    }
+
+    fn json_schema(
+        generator: &mut near_sdk::schemars::r#gen::SchemaGenerator,
+    ) -> near_sdk::schemars::schema::Schema {
+        <u64 as near_sdk::schemars::JsonSchema>::json_schema(generator)
+    }
+}
+
+impl near_sdk::schemars::JsonSchema for U128 {
+    fn schema_name() -> String {
+        "U128".to_string()
+    }
+
+    fn json_schema(
+        generator: &mut near_sdk::schemars::r#gen::SchemaGenerator,
+    ) -> near_sdk::schemars::schema::Schema {
+        <String as near_sdk::schemars::JsonSchema>::json_schema(generator)
     }
 }
 
@@ -41,7 +64,7 @@ impl<'de> Deserialize<'de> for U64 {
         impl serde::de::Visitor<'_> for StringOrNumberVisitor {
             type Value = U64;
 
-            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+            fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
                 formatter.write_str("a string or a number")
             }
 
@@ -77,7 +100,7 @@ impl<'de> Deserialize<'de> for U128 {
         impl serde::de::Visitor<'_> for StringOrNumberVisitor {
             type Value = U128;
 
-            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+            fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
                 formatter.write_str("a string or a number 128")
             }
 
@@ -113,7 +136,8 @@ impl<'de> Deserialize<'de> for U128 {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use borsh::BorshDeserialize;
+    use near_sdk::borsh::{self, BorshDeserialize};
+    use near_sdk::serde_json;
 
     #[test]
     fn test_u64_struct_from_u64() {

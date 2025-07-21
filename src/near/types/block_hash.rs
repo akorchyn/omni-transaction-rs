@@ -1,14 +1,26 @@
-use borsh::{BorshDeserialize, BorshSerialize};
-use near_sdk::serde::{Deserialize, Deserializer, Serialize};
-use schemars::JsonSchema;
-use serde::{de, Serializer};
+use near_sdk::{
+    bs58,
+    serde::{self, de, Deserialize, Deserializer, Serialize, Serializer},
+};
 
-#[derive(Debug, Clone, BorshSerialize, BorshDeserialize, PartialEq, Eq, JsonSchema)]
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[near_sdk::near(serializers=[borsh])]
 pub struct BlockHash(pub [u8; 32]);
 
 impl From<[u8; 32]> for BlockHash {
     fn from(data: [u8; 32]) -> Self {
         Self(data)
+    }
+}
+
+impl near_sdk::schemars::JsonSchema for BlockHash {
+    fn schema_name() -> String {
+        "BlockHash".to_string()
+    }
+    fn json_schema(
+        generator: &mut near_sdk::schemars::r#gen::SchemaGenerator,
+    ) -> near_sdk::schemars::schema::Schema {
+        <String as near_sdk::schemars::JsonSchema>::json_schema(generator)
     }
 }
 
@@ -68,7 +80,7 @@ impl<'de> Deserialize<'de> for BlockHash {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use borsh::BorshDeserialize;
+    use near_sdk::borsh::{self, BorshDeserialize};
     use near_sdk::serde_json;
 
     #[test]

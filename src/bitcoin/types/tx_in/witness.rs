@@ -1,8 +1,6 @@
 use std::io::{BufRead, Write};
 
-use borsh::{BorshDeserialize, BorshSerialize};
-use near_sdk::serde::{Deserialize, Deserializer, Serialize, Serializer};
-use schemars::JsonSchema;
+use near_sdk::serde::{self, Deserialize, Deserializer, Serialize, Serializer};
 
 use crate::bitcoin::encoding::{
     decode::MAX_VEC_SIZE, extensions::WriteExt, utils::VarInt, Decodable, Encodable,
@@ -18,7 +16,8 @@ use crate::bitcoin::encoding::{
 /// saving some allocations.
 ///
 /// [segwit upgrade]: <https://github.com/bitcoin/bips/blob/master/bip-0143.mediawiki>
-#[derive(Debug, Clone, PartialEq, Eq, BorshSerialize, BorshDeserialize, JsonSchema)]
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[near_sdk::near(serializers=[borsh,])]
 pub struct Witness {
     /// Contains the witness `Vec<Vec<u8>>` serialization.
     ///

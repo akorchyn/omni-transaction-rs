@@ -1,12 +1,11 @@
 use core::fmt;
 use std::io::{BufRead, Write};
 
-use borsh::{BorshDeserialize, BorshSerialize};
-use schemars::JsonSchema;
-
 use crate::bitcoin::encoding::{encode::Encodable, Decodable};
+use near_sdk::serde;
 
-#[derive(Debug, Default, Clone, PartialEq, Eq, BorshSerialize, BorshDeserialize, JsonSchema)]
+#[derive(Debug, Default, Clone, PartialEq, Eq)]
+#[near_sdk::near(serializers=[borsh])]
 pub struct ScriptBuf(pub Vec<u8>);
 
 impl ScriptBuf {

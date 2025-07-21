@@ -1,19 +1,18 @@
-use borsh::{BorshDeserialize, BorshSerialize};
-use bs58;
-use schemars::JsonSchema;
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use near_sdk::bs58;
+use near_sdk::serde::{self, Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt::Debug;
 
 use crate::constants::{COMPONENT_SIZE, SECP256K1_SIGNATURE_LENGTH};
 
-#[derive(Debug, Clone, BorshSerialize, BorshDeserialize, PartialEq, Eq, JsonSchema)]
-#[serde(crate = "near_sdk::serde")]
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[near_sdk::near(serializers=[borsh])]
 pub enum Signature {
     ED25519(ED25519Signature),
     SECP256K1(Secp256K1Signature),
 }
 
-#[derive(Debug, Clone, BorshSerialize, BorshDeserialize, PartialEq, Eq, JsonSchema)]
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[near_sdk::near(serializers=[borsh])]
 pub struct ED25519Signature {
     pub r: ComponentBytes,
     pub s: ComponentBytes,
@@ -22,18 +21,9 @@ pub struct ED25519Signature {
 /// Size of an `R` or `s` component of an Ed25519 signature when serialized as bytes.
 pub type ComponentBytes = [u8; COMPONENT_SIZE];
 
-#[derive(Debug, Clone, BorshSerialize, BorshDeserialize, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[near_sdk::near(serializers=[borsh])]
 pub struct Secp256K1Signature(pub [u8; SECP256K1_SIGNATURE_LENGTH]);
-
-impl JsonSchema for Secp256K1Signature {
-    fn schema_name() -> String {
-        "Secp256K1Signature".to_owned()
-    }
-
-    fn json_schema(gen: &mut schemars::gen::SchemaGenerator) -> schemars::schema::Schema {
-        <String>::json_schema(gen)
-    }
-}
 
 impl Serialize for Signature {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
@@ -54,6 +44,18 @@ impl Serialize for Signature {
                 serializer.serialize_str(&format!("secp256k1:{encoded}"))
             }
         }
+    }
+}
+
+impl near_sdk::schemars::JsonSchema for Signature {
+    fn schema_name() -> String {
+        "Signature".to_string()
+    }
+
+    fn json_schema(
+        generator: &mut near_sdk::schemars::r#gen::SchemaGenerator,
+    ) -> near_sdk::schemars::schema::Schema {
+        <String as near_sdk::schemars::JsonSchema>::json_schema(generator)
     }
 }
 
@@ -110,7 +112,7 @@ mod tests {
     use crate::near::utils::{PublicKeyStrExt, SignatureStrExt};
 
     use super::*;
-    use serde_json;
+    use near_sdk::{borsh, serde_json};
 
     #[test]
     fn test_compare_serde_json_with_near_primitives() {

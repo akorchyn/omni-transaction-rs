@@ -1,23 +1,11 @@
-use crate::near::types::{vector::Base64VecU8, BlockHash, PublicKey, Signature};
-use borsh::{BorshDeserialize, BorshSerialize};
-use near_sdk::serde::{Deserialize, Serialize};
+use crate::near::types::{BlockHash, PublicKey, Signature};
+use near_sdk::json_types::Base64VecU8;
 use near_sdk::AccountId;
-use schemars::JsonSchema;
 
 use super::{U128, U64};
 
-#[derive(
-    Serialize,
-    Deserialize,
-    Debug,
-    Clone,
-    BorshSerialize,
-    BorshDeserialize,
-    PartialEq,
-    Eq,
-    JsonSchema,
-)]
-#[serde(crate = "near_sdk::serde")]
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[near_sdk::near(serializers=[json, borsh])]
 pub enum Action {
     /// Create an (sub)account using a transaction `receiver_id` as an ID for
     /// a new account ID must pass validation rules described here
@@ -36,51 +24,21 @@ pub enum Action {
     UseGlobalContract(Box<UseGlobalContractAction>),
 }
 
-#[derive(
-    Serialize,
-    Deserialize,
-    Debug,
-    Clone,
-    BorshSerialize,
-    BorshDeserialize,
-    PartialEq,
-    Eq,
-    JsonSchema,
-)]
-#[serde(crate = "near_sdk::serde")]
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[near_sdk::near(serializers=[borsh, json])]
 pub struct DeployGlobalContractAction {
     pub code: Base64VecU8,
     pub deploy_mode: GlobalContractDeployMode,
 }
 
-#[derive(
-    Serialize,
-    Deserialize,
-    Debug,
-    Clone,
-    BorshSerialize,
-    BorshDeserialize,
-    PartialEq,
-    Eq,
-    JsonSchema,
-)]
-#[serde(crate = "near_sdk::serde")]
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[near_sdk::near(serializers=[borsh, json])]
 pub struct UseGlobalContractAction {
     pub contract_identifier: GlobalContractIdentifier,
 }
 
-#[derive(
-    Serialize,
-    Deserialize,
-    Debug,
-    Clone,
-    BorshSerialize,
-    BorshDeserialize,
-    PartialEq,
-    Eq,
-    JsonSchema,
-)]
-#[serde(crate = "near_sdk::serde")]
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[near_sdk::near(serializers=[borsh, json])]
 pub enum GlobalContractDeployMode {
     /// Contract is deployed under its code hash.
     /// Users will be able reference it by that hash.
@@ -92,65 +50,25 @@ pub enum GlobalContractDeployMode {
     AccountId,
 }
 
-#[derive(
-    Serialize,
-    Deserialize,
-    Debug,
-    Clone,
-    BorshSerialize,
-    BorshDeserialize,
-    PartialEq,
-    Eq,
-    JsonSchema,
-)]
-#[serde(crate = "near_sdk::serde")]
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[near_sdk::near(serializers=[borsh, json])]
 pub enum GlobalContractIdentifier {
     CodeHash(BlockHash),
     AccountId(AccountId),
 }
 
-#[derive(
-    Serialize,
-    Deserialize,
-    Debug,
-    Clone,
-    BorshSerialize,
-    BorshDeserialize,
-    PartialEq,
-    Eq,
-    JsonSchema,
-)]
-#[serde(crate = "near_sdk::serde")]
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[near_sdk::near(serializers=[borsh, json])]
 pub struct CreateAccountAction {}
 
-#[derive(
-    Serialize,
-    Deserialize,
-    Debug,
-    Clone,
-    BorshSerialize,
-    BorshDeserialize,
-    PartialEq,
-    Eq,
-    JsonSchema,
-)]
-#[serde(crate = "near_sdk::serde")]
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[near_sdk::near(serializers=[borsh, json])]
 pub struct DeployContractAction {
     pub code: Base64VecU8,
 }
 
-#[derive(
-    Serialize,
-    Deserialize,
-    Debug,
-    Clone,
-    BorshSerialize,
-    BorshDeserialize,
-    PartialEq,
-    Eq,
-    JsonSchema,
-)]
-#[serde(crate = "near_sdk::serde")]
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[near_sdk::near(serializers=[borsh, json])]
 pub struct FunctionCallAction {
     pub method_name: String,
     pub args: Base64VecU8,
@@ -158,34 +76,14 @@ pub struct FunctionCallAction {
     pub deposit: U128,
 }
 
-#[derive(
-    Serialize,
-    Deserialize,
-    Debug,
-    Clone,
-    BorshSerialize,
-    BorshDeserialize,
-    PartialEq,
-    Eq,
-    JsonSchema,
-)]
-#[serde(crate = "near_sdk::serde")]
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[near_sdk::near(serializers=[borsh, json])]
 pub struct TransferAction {
     pub deposit: U128,
 }
 
-#[derive(
-    Serialize,
-    Deserialize,
-    Debug,
-    Clone,
-    BorshSerialize,
-    BorshDeserialize,
-    PartialEq,
-    Eq,
-    JsonSchema,
-)]
-#[serde(crate = "near_sdk::serde")]
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[near_sdk::near(serializers=[borsh, json])]
 pub struct StakeAction {
     /// Amount of tokens to stake.
     pub stake: U128,
@@ -193,18 +91,8 @@ pub struct StakeAction {
     pub public_key: PublicKey,
 }
 
-#[derive(
-    Serialize,
-    Deserialize,
-    Debug,
-    Clone,
-    BorshSerialize,
-    BorshDeserialize,
-    PartialEq,
-    Eq,
-    JsonSchema,
-)]
-#[serde(crate = "near_sdk::serde")]
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[near_sdk::near(serializers=[borsh, json])]
 pub struct AddKeyAction {
     /// A public key which will be associated with an access_key
     pub public_key: PublicKey,
@@ -212,18 +100,8 @@ pub struct AddKeyAction {
     pub access_key: AccessKey,
 }
 
-#[derive(
-    Serialize,
-    Deserialize,
-    Debug,
-    Clone,
-    BorshSerialize,
-    BorshDeserialize,
-    PartialEq,
-    Eq,
-    JsonSchema,
-)]
-#[serde(crate = "near_sdk::serde")]
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[near_sdk::near(serializers=[borsh, json])]
 pub struct AccessKey {
     /// Nonce for this access key, used for tx nonce generation. When access key is created, nonce
     /// is set to `(block_height - 1) * 1e6` to avoid tx hash collision on access key re-creation.
@@ -233,18 +111,8 @@ pub struct AccessKey {
     pub permission: AccessKeyPermission,
 }
 
-#[derive(
-    Serialize,
-    Deserialize,
-    Debug,
-    Clone,
-    BorshSerialize,
-    BorshDeserialize,
-    PartialEq,
-    Eq,
-    JsonSchema,
-)]
-#[serde(crate = "near_sdk::serde")]
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[near_sdk::near(serializers=[borsh, json])]
 pub enum AccessKeyPermission {
     FunctionCall(FunctionCallPermission),
     /// Grants full access to the account.
@@ -252,69 +120,30 @@ pub enum AccessKeyPermission {
     FullAccess,
 }
 
-#[derive(
-    Serialize,
-    Deserialize,
-    Debug,
-    Clone,
-    BorshSerialize,
-    BorshDeserialize,
-    PartialEq,
-    Eq,
-    JsonSchema,
-)]
-#[serde(crate = "near_sdk::serde")]
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[near_sdk::near(serializers=[borsh, json])]
 pub struct FunctionCallPermission {
     pub allowance: Option<U128>,
     pub receiver_id: String,
     pub method_names: Vec<String>,
 }
 
-#[derive(
-    Serialize,
-    Deserialize,
-    Debug,
-    Clone,
-    BorshSerialize,
-    BorshDeserialize,
-    PartialEq,
-    Eq,
-    JsonSchema,
-)]
-#[serde(crate = "near_sdk::serde")]
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[near_sdk::near(serializers=[borsh, json])]
 pub struct DeleteKeyAction {
     /// A public key associated with the access_key to be deleted.
     pub public_key: PublicKey,
 }
 
-#[derive(
-    Serialize,
-    Deserialize,
-    Debug,
-    Clone,
-    BorshSerialize,
-    BorshDeserialize,
-    PartialEq,
-    Eq,
-    JsonSchema,
-)]
-#[serde(crate = "near_sdk::serde")]
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[near_sdk::near(serializers=[borsh, json])]
 pub struct DeleteAccountAction {
     pub beneficiary_id: AccountId,
 }
 
-#[derive(
-    Serialize,
-    Deserialize,
-    Debug,
-    Clone,
-    BorshSerialize,
-    BorshDeserialize,
-    PartialEq,
-    Eq,
-    JsonSchema,
-)]
-#[serde(crate = "near_sdk::serde")]
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[near_sdk::near(serializers=[borsh, json])]
+
 pub struct NonDelegateAction(Action);
 
 impl TryFrom<Action> for NonDelegateAction {
@@ -327,18 +156,8 @@ impl TryFrom<Action> for NonDelegateAction {
     }
 }
 
-#[derive(
-    Serialize,
-    Deserialize,
-    Debug,
-    Clone,
-    BorshSerialize,
-    BorshDeserialize,
-    PartialEq,
-    Eq,
-    JsonSchema,
-)]
-#[serde(crate = "near_sdk::serde")]
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[near_sdk::near(serializers=[borsh, json])]
 pub struct DelegateAction {
     pub sender_id: AccountId,
     pub receiver_id: AccountId,
@@ -348,18 +167,8 @@ pub struct DelegateAction {
     pub public_key: PublicKey,
 }
 
-#[derive(
-    Serialize,
-    Deserialize,
-    Debug,
-    Clone,
-    BorshSerialize,
-    BorshDeserialize,
-    PartialEq,
-    Eq,
-    JsonSchema,
-)]
-#[serde(crate = "near_sdk::serde")]
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[near_sdk::near(serializers=[borsh, json])]
 pub struct SignedDelegateAction {
     pub delegate_action: DelegateAction,
     pub signature: Signature,
@@ -370,6 +179,8 @@ mod tests {
     use super::*;
     use crate::constants::ED25519_PUBLIC_KEY_LENGTH;
     use crate::near::types::public_key::ED25519PublicKey;
+    use near_sdk::borsh;
+    use near_sdk::borsh::BorshDeserialize;
     use near_sdk::serde_json;
 
     use near_primitives::action::{

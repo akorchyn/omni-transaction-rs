@@ -132,7 +132,8 @@ mod tests {
             actions: vec![actions],
         };
 
-        let serialized_v0_tx = borsh::to_vec(&v0_tx).expect("failed to serialize NEAR transaction");
+        let serialized_v0_tx =
+            near_sdk::borsh::to_vec(&v0_tx).expect("failed to serialize NEAR transaction");
 
         assert!(serialized_v0_tx == omni_tx_encoded);
     }

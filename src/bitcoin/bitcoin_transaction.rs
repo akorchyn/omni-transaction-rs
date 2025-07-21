@@ -1,6 +1,3 @@
-use borsh::{BorshDeserialize, BorshSerialize};
-use near_sdk::serde::{Deserialize, Serialize};
-use schemars::JsonSchema;
 use sha2::{Digest, Sha256};
 use std::io::{BufRead, Write};
 
@@ -64,18 +61,8 @@ use super::{
 /// "#;
 /// let tx = BitcoinTransaction::from_json(json_value).unwrap();
 ///
-#[derive(
-    Debug,
-    Clone,
-    PartialEq,
-    Eq,
-    Serialize,
-    Deserialize,
-    BorshSerialize,
-    BorshDeserialize,
-    JsonSchema,
-)]
-#[serde(crate = "near_sdk::serde")]
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[near_sdk::near(serializers=[borsh, json])]
 pub struct BitcoinTransaction {
     /// The protocol version, is currently expected to be 1 or 2 (BIP 68).
     pub version: Version,
@@ -376,6 +363,7 @@ mod tests {
     };
     use bitcoin::Witness;
     use bitcoin::{Amount, ScriptBuf};
+    use near_sdk::serde_json;
 
     #[test]
     fn test_build_for_signing_against_rust_bitcoin_for_version_1() {

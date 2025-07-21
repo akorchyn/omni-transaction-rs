@@ -9,10 +9,7 @@ use std::{
     io::{BufRead, Write},
 };
 
-use borsh::{BorshDeserialize, BorshSerialize};
-use near_sdk::serde::{Deserialize, Serialize};
-use schemars::JsonSchema;
-use serde::Deserializer;
+use near_sdk::serde::{self, Deserialize, Deserializer, Serialize};
 
 /// Locktime itself is an unsigned 4-byte integer which can be parsed two ways:
 ///
@@ -24,10 +21,22 @@ use serde::Deserializer;
 /// The transaction can be added to any block whose block time is greater than the locktime.
 ///
 /// [Bitcoin Devguide]: https://developer.bitcoin.org/devguide/transactions.html#locktime-and-sequence-number
-#[derive(
-    Debug, Clone, Copy, PartialEq, Eq, Serialize, BorshSerialize, BorshDeserialize, JsonSchema,
-)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[near_sdk::near(serializers=[borsh])]
+#[serde(crate = "near_sdk::serde")]
 pub struct LockTime(u32);
+
+impl near_sdk::schemars::JsonSchema for LockTime {
+    fn schema_name() -> String {
+        "LockTime".to_string()
+    }
+
+    fn json_schema(
+        generator: &mut near_sdk::schemars::r#gen::SchemaGenerator,
+    ) -> near_sdk::schemars::schema::Schema {
+        <u32 as near_sdk::schemars::JsonSchema>::json_schema(generator)
+    }
+}
 
 impl LockTime {
     /// The number of bytes that the locktime contributes to the size of a transaction.
@@ -139,6 +148,10 @@ impl<'de> Deserialize<'de> for LockTime {
 mod tests {
     use super::*;
     use crate::bitcoin::types::Height;
+    use near_sdk::{
+        borsh::{self, BorshDeserialize},
+        serde_json,
+    };
 
     #[test]
     fn test_locktime_size() {

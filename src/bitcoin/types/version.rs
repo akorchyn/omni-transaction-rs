@@ -3,10 +3,10 @@ use std::{
     io::{self, BufRead, Write},
 };
 
-use borsh::{BorshDeserialize, BorshSerialize};
-use near_sdk::serde::{Deserialize, Serialize};
-use schemars::JsonSchema;
-use serde::Deserializer;
+use near_sdk::{
+    borsh::{BorshDeserialize, BorshSchema, BorshSerialize},
+    serde::{self, Deserialize, Deserializer, Serialize},
+};
 
 use crate::bitcoin::encoding::{Decodable, Encodable};
 
@@ -15,8 +15,9 @@ use crate::bitcoin::encoding::{Decodable, Encodable};
 /// Currently, as specified by [BIP-68], only version 1 and 2 are considered standard.
 ///
 /// [BIP-68]: https://github.com/bitcoin/bips/blob/master/bip-0068.mediawiki
-#[derive(Debug, Copy, PartialEq, Eq, Clone, BorshSerialize, BorshDeserialize, JsonSchema)]
-#[borsh(use_discriminant = true)]
+#[derive(Debug, Copy, PartialEq, Eq, Clone, BorshSerialize, BorshDeserialize)]
+#[borsh(crate = "near_sdk::borsh", use_discriminant = true)]
+#[near_sdk::near(serializers=[])]
 pub enum Version {
     /// The original Bitcoin transaction version (pre-BIP-68)
     One = 1,
@@ -33,6 +34,33 @@ impl Version {
     /// Serializes the version and returns the result as a `Vec<u8>`.
     pub fn to_vec(&self) -> Vec<u8> {
         (*self as i32).to_le_bytes().to_vec()
+    }
+}
+
+impl BorshSchema for Version {
+    fn declaration() -> near_sdk::borsh::schema::Declaration {
+        todo!()
+    }
+
+    fn add_definitions_recursively(
+        definitions: &mut std::collections::BTreeMap<
+            near_sdk::borsh::schema::Declaration,
+            near_sdk::borsh::schema::Definition,
+        >,
+    ) {
+        todo!()
+    }
+}
+
+impl near_sdk::schemars::JsonSchema for Version {
+    fn schema_name() -> String {
+        "Version".to_string()
+    }
+
+    fn json_schema(
+        generator: &mut near_sdk::schemars::r#gen::SchemaGenerator,
+    ) -> near_sdk::schemars::schema::Schema {
+        <i32 as near_sdk::schemars::JsonSchema>::json_schema(generator)
     }
 }
 
@@ -143,6 +171,8 @@ impl fmt::Display for Version {
 
 #[cfg(test)]
 mod tests {
+    use near_sdk::serde_json;
+
     use super::*;
     use std::io::Cursor;
 
@@ -214,7 +244,7 @@ mod tests {
     #[test]
     fn test_version_borsh_serialization() {
         let version = Version::One;
-        let buf = borsh::to_vec(&version).unwrap();
+        let buf = near_sdk::borsh::to_vec(&version).unwrap();
         let deserialized = Version::try_from_slice(&buf).unwrap();
 
         assert_eq!(version, deserialized);

@@ -1,4 +1,4 @@
-use bs58;
+use near_sdk::bs58;
 use std::convert::TryInto;
 
 use crate::constants::{ED25519_PUBLIC_KEY_LENGTH, SECP256K1_PUBLIC_KEY_LENGTH};

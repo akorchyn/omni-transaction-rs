@@ -3,9 +3,8 @@ use std::{
     io::{BufRead, Write},
 };
 
-use borsh::{BorshDeserialize, BorshSerialize};
-use schemars::JsonSchema;
-use serde::{de::MapAccess, Deserialize, Deserializer, Serialize};
+use near_sdk::serde::{self, Deserialize, Deserializer, Serialize};
+use near_sdk::{serde::de::MapAccess, serde_json};
 
 use super::hash::Hash;
 use super::tx_id::Txid;
@@ -17,9 +16,8 @@ use crate::bitcoin::encoding::{Decodable, Encodable};
 /// ### Bitcoin Core References
 ///
 /// * [COutPoint definition](https://github.com/bitcoin/bitcoin/blob/345457b542b6a980ccfbc868af0970a6f91d1b82/src/primitives/transaction.h#L26)
-#[derive(
-    Debug, Copy, Clone, Eq, PartialEq, Serialize, BorshSerialize, BorshDeserialize, JsonSchema,
-)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Serialize)]
+#[near_sdk::near(serializers=[borsh])]
 #[serde(crate = "near_sdk::serde")]
 pub struct OutPoint {
     /// The referenced transaction's txid.

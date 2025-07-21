@@ -1,26 +1,54 @@
 use crate::constants::{ED25519_PUBLIC_KEY_LENGTH, SECP256K1_PUBLIC_KEY_LENGTH};
 use crate::near::utils::PublicKeyStrExt;
-use borsh::{BorshDeserialize, BorshSerialize};
-use near_sdk::serde::{Deserialize, Deserializer, Serialize};
-use schemars::JsonSchema;
-use serde::de::{self};
-use serde::ser::{SerializeTuple, Serializer};
+use near_sdk::borsh::{BorshDeserialize, BorshSchema, BorshSerialize};
+use near_sdk::bs58;
+use near_sdk::serde::ser::SerializeTuple;
+use near_sdk::serde::{self, de, Deserialize, Deserializer, Serialize, Serializer};
 use std::io::{Error, Write};
 
-#[derive(BorshDeserialize, PartialEq, Eq, Debug, Clone)]
+#[derive(PartialEq, Eq, Debug, Clone, BorshDeserialize)]
+#[near_sdk::near(serializers=[])]
+#[borsh(crate = "near_sdk::borsh")]
 pub struct Secp256K1PublicKey(pub [u8; SECP256K1_PUBLIC_KEY_LENGTH]);
 
-#[derive(Serialize, Deserialize, BorshDeserialize, PartialEq, Eq, Debug, Clone, JsonSchema)]
-#[serde(crate = "near_sdk::serde")]
+#[derive(PartialEq, Eq, Debug, Clone, BorshDeserialize)]
+#[near_sdk::near(serializers=[json])]
+#[borsh(crate = "near_sdk::borsh")]
 pub struct ED25519PublicKey(pub [u8; ED25519_PUBLIC_KEY_LENGTH]);
 
-#[derive(PartialEq, Eq, Debug, Clone, JsonSchema)]
-#[serde(crate = "near_sdk::serde")]
+#[derive(PartialEq, Eq, Debug, Clone)]
+#[near_sdk::near(serializers=[])]
 pub enum PublicKey {
     /// 256 bit elliptic curve based public-key.
     ED25519(ED25519PublicKey),
     /// 512 bit elliptic curve based public-key used in Bitcoin's public-key cryptography.
     SECP256K1(Secp256K1PublicKey),
+}
+
+impl near_sdk::schemars::JsonSchema for PublicKey {
+    fn schema_name() -> String {
+        "PublicKey".to_string()
+    }
+
+    fn json_schema(
+        generator: &mut near_sdk::schemars::r#gen::SchemaGenerator,
+    ) -> near_sdk::schemars::schema::Schema {
+        <String as near_sdk::schemars::JsonSchema>::json_schema(generator)
+    }
+}
+impl BorshSchema for PublicKey {
+    fn declaration() -> near_sdk::borsh::schema::Declaration {
+        <String as BorshSchema>::declaration()
+    }
+
+    fn add_definitions_recursively(
+        definitions: &mut std::collections::BTreeMap<
+            near_sdk::borsh::schema::Declaration,
+            near_sdk::borsh::schema::Definition,
+        >,
+    ) {
+        <String as BorshSchema>::add_definitions_recursively(definitions);
+    }
 }
 
 impl std::fmt::Display for PublicKey {
@@ -221,20 +249,10 @@ impl<'de> Deserialize<'de> for Secp256K1PublicKey {
     }
 }
 
-impl JsonSchema for Secp256K1PublicKey {
-    fn schema_name() -> String {
-        "Secp256K1PublicKey".to_owned()
-    }
-
-    fn json_schema(gen: &mut schemars::gen::SchemaGenerator) -> schemars::schema::Schema {
-        <Vec<u8>>::json_schema(gen)
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
-    use borsh;
+    use near_sdk::borsh;
     use near_sdk::serde_json;
 
     #[test]

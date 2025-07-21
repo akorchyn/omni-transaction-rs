@@ -1,7 +1,4 @@
-use borsh::{BorshDeserialize, BorshSerialize};
-use near_sdk::serde::{Deserialize, Serialize};
 use near_sdk::{borsh, AccountId};
-use schemars::JsonSchema;
 
 use super::types::{Action, BlockHash, PublicKey, Signature, U64};
 
@@ -25,8 +22,8 @@ use super::types::{Action, BlockHash, PublicKey, Signature, U64};
 ///     actions,
 /// };
 /// ```
-#[derive(Serialize, Deserialize, Debug, Clone, BorshSerialize, BorshDeserialize, JsonSchema)]
-#[serde(crate = "near_sdk::serde")]
+#[derive(Debug, Clone)]
+#[near_sdk::near(serializers=[borsh, json])]
 pub struct NearTransaction {
     /// An account on which behalf transaction is signed
     pub signer_id: AccountId,
@@ -46,7 +43,8 @@ pub struct NearTransaction {
 }
 
 /// Signed NEAR transaction abstraction
-#[derive(BorshSerialize, BorshDeserialize, Debug, Clone)]
+#[derive(Debug, Clone)]
+#[near_sdk::near(serializers=[borsh, json])]
 pub struct SignedTransaction {
     pub transaction: NearTransaction,
     pub signature: Signature,
@@ -77,11 +75,11 @@ mod tests {
 
     use super::*;
     use crate::near::types::{
-        vector::Base64VecU8, AccessKey as OmniAccessKey,
-        AccessKeyPermission as OmniAccessKeyPermission, Action as OmniAction,
-        AddKeyAction as OmniAddKeyAction, CreateAccountAction as OmniCreateAccountAction,
-        DelegateAction as OmniDelegateAction, DeleteAccountAction as OmniDeleteAccountAction,
-        DeleteKeyAction as OmniDeleteKeyAction, DeployContractAction as OmniDeployContractAction,
+        AccessKey as OmniAccessKey, AccessKeyPermission as OmniAccessKeyPermission,
+        Action as OmniAction, AddKeyAction as OmniAddKeyAction,
+        CreateAccountAction as OmniCreateAccountAction, DelegateAction as OmniDelegateAction,
+        DeleteAccountAction as OmniDeleteAccountAction, DeleteKeyAction as OmniDeleteKeyAction,
+        DeployContractAction as OmniDeployContractAction,
         DeployGlobalContractAction as OmniDeployGlobalContractAction, ED25519Signature,
         FunctionCallAction as OmniFunctionCallAction,
         GlobalContractDeployMode as OmniGlobalContractDeployMode,
@@ -106,6 +104,8 @@ mod tests {
         transaction::Transaction as NearPrimitiveTransaction,
         transaction::TransactionV0,
     };
+    use near_sdk::json_types::Base64VecU8;
+    use near_sdk::{bs58, serde_json};
 
     #[derive(Debug)]
     struct TestCase {
